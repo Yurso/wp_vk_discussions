@@ -1,1 +1,1 @@
-# wp_vk_discussions
+# Word Press VK Group Discussions
