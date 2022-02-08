@@ -1,37 +1,36 @@
 <?php
 /* @wordpress-plugin
- * Plugin Name:       VK Discussions plugin
- * Plugin URI:        http://khos.ru
- * Description:       Shortcode to add vk duscussions comments to your page. Example: [vk_discussions group_id=72562540 topic_id=31870138 count=40 sort=desc]
- * Version:           1.0.0
- * Author:            Yury Khomich
- * Author URI:        http://khos.ru
- * Text Domain:       vk-discussions
- * Domain Path: /languages
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- */
+* Plugin Name:       VK Discussions plugin
+* Plugin URI:        http://khos.ru
+* Description:       Shortcode to add vk duscussions comments to your page. Example: [vk_discussions group_id=72562540 topic_id=31870138 count=40 sort=desc]
+* Version:           1.0.0
+* Author:            Yury Khomich
+* Author URI:        http://khos.ru
+* Text Domain:       vk-discussions
+* Domain Path: /languages
+* License:           GPL-2.0+
+* License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+*/
 
 function vk_discussions_func( $atts ) {
 
-	wp_enqueue_style('vk-discussions', plugin_dir_url(__FILE__) . 'assets/style.css');	
-
+	wp_enqueue_style('vk-discussions', plugin_dir_url(__FILE__) . 'assets/style.css');
 	wp_enqueue_style('fancybox', plugin_dir_url(__FILE__) . 'assets/fancybox/jquery.fancybox-1.3.4.css');	
 	wp_enqueue_script('fancybox', plugin_dir_url(__FILE__) . 'assets/fancybox/jquery.fancybox-1.3.4.pack.js');	
 
 	$result = '';
-    
-    $a = shortcode_atts( array(
-        'group_id' => '',
-        'topic_id' => '',
-        'count' => 30,
-        'sort' => 'asc'
-    ), $atts );
 
-    if (empty($a['group_id']) || empty($a['topic_id'])) {
-    	return 'No group_id or topic_id information';
-    }
-	
+	$a = shortcode_atts( array(
+		'group_id' => '',
+		'topic_id' => '',
+		'count' => 30,
+		'sort' => 'asc'
+	), $atts );
+
+	if (empty($a['group_id']) || empty($a['topic_id'])) {
+		return 'No group_id or topic_id information';
+	}
+
 	$extended = 1; // Будут ли загружены профили
 	$need_likes = 1; // Будут ли загружены лайки	
 	$version = "5.73"; // Версия VK API
@@ -44,14 +43,14 @@ function vk_discussions_func( $atts ) {
 	} else { // else redirect to last page
 
 		$page = file_get_contents("https://api.vk.com/method/board.getComments?" 
-		  . "group_id=" . $a['group_id'] 
-		  . "&topic_id=" . $a['topic_id'] 
-		  . "&count=1"
-		  . "&offset=0"
-		  . "&extended=0"
-		  . "&need_likes=0"
-		  . "&sort=asc"
-		  . "&version=" . $version
+			. "group_id=" . $a['group_id'] 
+			. "&topic_id=" . $a['topic_id'] 
+			. "&count=1"
+			. "&offset=0"
+			. "&extended=0"
+			. "&need_likes=0"
+			. "&sort=asc"
+			. "&version=" . $version
 		);
 
 		$data = json_decode($page);
@@ -71,7 +70,7 @@ function vk_discussions_func( $atts ) {
 		exit;
 
 	}
-	
+
 	$page = file_get_contents("https://api.vk.com/method/board.getComments?" 
 		  . "group_id=" . $a['group_id'] 
 		  . "&topic_id=" . $a['topic_id'] 
@@ -93,10 +92,6 @@ function vk_discussions_func( $atts ) {
 		return 'Problem with VK API response';
 	}
 
-	// echo '<div style="display:none;">';
-	// print_r($data);
-	// echo '</div>';
-
 	$profiles = array();
 	// Reorg profiles to array
 	foreach ($data->response->profiles as $profile) {
@@ -108,16 +103,16 @@ function vk_discussions_func( $atts ) {
 	$result .= '<div class="vk-discussions">';
 
 	foreach ($data->response->comments as $comment) {
-		//TODO: Исключить ответы на комментарии
-		$result .= '<div class="vkd-comment">';
-		$result .= '	<a class="vkd-comment-thumb" target="_blank" href="https://vk.com/'.$profiles[$comment->from_id]->screen_name.'">';
-    	$result .= '		<img class="vkd-comment-img" alt="'.$profiles[$comment->from_id]->first_name.' '.$profiles[$comment->from_id]->last_name.'" src="'.$profiles[$comment->from_id]->photo.'">';
-    	$result .= '	</a>';
-    	$result .= '	<div class="vkd-comment-info">';
-    	$result .= '		<div class="vkd-comment-author">';
-    	$result .= '			<a href="https://vk.com/'.$profiles[$comment->from_id]->screen_name.'" target="_blank">'.$profiles[$comment->from_id]->first_name.' '.$profiles[$comment->from_id]->last_name.'</a>';
-    	$result .= '			<span>'.date("d.m.y в H:i", $comment->date).'</span>';
-    	$result .= '		</div>';
+
+        $result .= '<div class="vkd-comment">';
+        $result .= '	<a class="vkd-comment-thumb" target="_blank" href="https://vk.com/'.$profiles[$comment->from_id]->screen_name.'">';
+        $result .= '		<img class="vkd-comment-img" alt="'.$profiles[$comment->from_id]->first_name.' '.$profiles[$comment->from_id]->last_name.'" src="'.$profiles[$comment->from_id]->photo.'">';
+        $result .= '	</a>';
+        $result .= '	<div class="vkd-comment-info">';
+        $result .= '		<div class="vkd-comment-author">';
+        $result .= '			<a href="https://vk.com/'.$profiles[$comment->from_id]->screen_name.'" target="_blank">'.$profiles[$comment->from_id]->first_name.' '.$profiles[$comment->from_id]->last_name.'</a>';
+        $result .= '			<span>'.date("d.m.y в H:i", $comment->date).'</span>';
+        $result .= '		</div>';
 		$result .= '		<div class="vkd-comment-text">'.preg_replace('/\[(.*)\|(.*)\]/', "$2", $comment->text).'</div>';
 
 		if (isset($comment->attachments)) {
@@ -161,10 +156,11 @@ function vk_discussions_func( $atts ) {
 	}
 
 	$result .= '</div>'; #pagination end
- 
+
 	$result .= '</div>'; #vk-discussions end
 
-    return $result;
+	return $result;
+   
 }
 
 add_shortcode( 'vk_discussions', 'vk_discussions_func' );
